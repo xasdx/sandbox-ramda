@@ -8,14 +8,18 @@ Object.values({
     
     let array = [0, 1, 2]
     let otherArray = [...array]
+    
     otherArray[1] = 3
+    
     expect(array).to.deep.equal([0, 1, 2])
     expect(otherArray).to.deep.equal([0, 3, 2])
   },
+  
   "generatesRanges": () => {
     
     expect(R.range(2, 5).reverse().map(n => n + 1)).to.deep.equal([5, 4, 3])
   },
+  
   "curriesFunctions": () => {
     
     let add = (a, b) => a + b
@@ -35,5 +39,17 @@ Object.values({
     
     let i = R.curryN(2, sum)
     expect(i(4, 5)).to.equal(9)
+  },
+  
+  "filtersFilterables": () => {
+    
+    let range = R.range(1, 10)
+    let obj = { a: 2, b: 3 }
+    let isEven = n => n % 2 === 0
+    
+    let filterEvenNumbers = R.filter(isEven)
+    
+    expect(filterEvenNumbers(range)).to.deep.equal([2, 4, 6, 8])
+    expect(filterEvenNumbers(obj)).to.deep.equal({ a: 2 })
   }
 }).forEach(f => f())
