@@ -51,5 +51,17 @@ Object.values({
     
     expect(filterEvenNumbers(range)).to.deep.equal([2, 4, 6, 8])
     expect(filterEvenNumbers(obj)).to.deep.equal({ a: 2 })
+  },
+  
+  "composesFunctions": () => {
+    
+    let isNotNil = R.compose(R.not, R.isNil)
+    let obj = { name: "paul" }
+    let nameNotNil = R.compose(isNotNil, R.prop("name"))
+    
+    expect(isNotNil("")).to.be.true
+    expect(isNotNil(null)).to.be.false
+    expect(nameNotNil(obj)).to.be.true
+    expect(nameNotNil({})).to.be.false
   }
 }).forEach(f => f())
