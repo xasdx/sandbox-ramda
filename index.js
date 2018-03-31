@@ -63,5 +63,12 @@ Object.values({
     expect(isNotNil(null)).to.be.false
     expect(nameNotNil(obj)).to.be.true
     expect(nameNotNil({})).to.be.false
+  },
+
+  "pipesFunctions": () => {
+
+    let doSomeComputation = R.pipe(R.add, R.inc, R.tap(console.log), R.negate)
+
+    expect(doSomeComputation(3, 4)).to.equal(-8)
   }
 }).forEach(f => f())
