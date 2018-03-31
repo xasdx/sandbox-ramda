@@ -70,5 +70,20 @@ Object.values({
     let doSomeComputation = R.pipe(R.add, R.inc, R.tap(console.log), R.negate)
 
     expect(doSomeComputation(3, 4)).to.equal(-8)
+  },
+
+  "abstractsConditionalStatements": () => {
+
+    let obj = { name: "paul", age: 1 }
+    let otherObj = { age: 1 }
+
+    let greet = obj => `hello ${R.ifElse(
+      R.has("name"),
+      R.prop("name"),
+      R.pipe(R.assoc("name", "paul"), R.prop("name"))
+    )(obj)}`
+
+    expect(greet(obj)).to.equal("hello paul")
+    expect(greet(otherObj)).to.equal("hello paul")
   }
 }).forEach(f => f())
