@@ -86,5 +86,23 @@ Object.values({
 
     expect(greet(obj)).to.equal(expected)
     expect(greet(otherObj)).to.equal(expected)
+  },
+
+  "validatesObjects": () => {
+
+    let isNotNil = R.compose(R.not, R.isNil)
+    let hasLengthBetween = (n, m) => R.pipe(R.length, R.both(R.gt(_, n), R.lt(_, m)))
+    let isValidUser = R.pipe(R.prop("name"), R.allPass([
+      isNotNil,
+      hasLengthBetween(2, 15),
+      R.test(/^[a-z ]+$/i)
+    ]))
+
+    expect(isValidUser({ name: "Paul Denino" })).to.be.true
+    expect(isValidUser({})).to.be.false
+    expect(isValidUser({ name: null })).to.be.false
+    expect(isValidUser({ name: "pa" })).to.be.false
+    expect(isValidUser({ name: "x".repeat(15) })).to.be.false
+    expect(isValidUser({ name: "p ! D" })).to.be.false
   }
 }).forEach(f => f())
