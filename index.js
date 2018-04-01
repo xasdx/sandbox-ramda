@@ -90,19 +90,45 @@ Object.values({
 
   "validatesObjects": () => {
 
+    let validName = { name: "Paul Denino" }
+    const validMail = { email: "paul@host.com" }
+
     let isNotNil = R.compose(R.not, R.isNil)
     let hasLengthBetween = (n, m) => R.pipe(R.length, R.both(R.gt(_, n), R.lt(_, m)))
-    let isValidUser = R.pipe(R.prop("name"), R.allPass([
+
+    let isValidUserName = R.pipe(R.prop("name"), R.allPass([
       isNotNil,
       hasLengthBetween(2, 15),
       R.test(/^[a-z ]+$/i)
     ]))
 
-    expect(isValidUser({ name: "Paul Denino" })).to.be.true
-    expect(isValidUser({})).to.be.false
-    expect(isValidUser({ name: null })).to.be.false
-    expect(isValidUser({ name: "pa" })).to.be.false
-    expect(isValidUser({ name: "x".repeat(15) })).to.be.false
-    expect(isValidUser({ name: "p ! D" })).to.be.false
+    let isValidMailAddress = R.pipe(R.prop("email"), R.allPass([isNotNil, R.contains("@")]))
+
+    let validateMailAddress = R.ifElse(isValidMailAddress, R.always(""), R.always("Invalid email address"))
+    let validateUserName = R.ifElse(isValidUserName, R.always(""), R.always("Invalid username"))
+
+    expect(isValidUserName(validName)).to.be.true
+    expect(isValidUserName({})).to.be.false
+    expect(isValidUserName({ name: null })).to.be.false
+    expect(isValidUserName({ name: "pa" })).to.be.false
+    expect(isValidUserName({ name: "x".repeat(15) })).to.be.false
+    expect(isValidUserName({ name: "p ! D" })).to.be.false
+
+    expect(isValidMailAddress(validMail)).to.be.true
+    expect(isValidMailAddress({ email: "paul" })).to.be.false
+    expect(isValidMailAddress({})).to.be.false
+    expect(isValidMailAddress({ email: null })).to.be.false
+    expect(isValidMailAddress({ email: true })).to.be.false
+
+    let validate = R.pipe(
+      R.of,
+      R.ap([validateUserName, validateMailAddress]),
+      R.ifElse(R.all(R.isEmpty), R.always(true), R.pipe(R.join("\n"), msg => { throw new Error(msg) }))
+    )
+
+    expect(validate({ ...validName, ...validMail })).to.be.true
+    expect(() => validate({ ...validName })).to.throw("email")
+    expect(() => validate({ ...validMail })).to.throw("username")
+    expect(() => validate({})).to.throw(/.*username[\w\s]*address/)
   }
 }).forEach(f => f())
